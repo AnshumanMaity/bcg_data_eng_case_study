@@ -3,7 +3,7 @@ from utils.utils import Utils
 from utils import schemas
 
 
-class ManAccidentAnalysis:
+class MaleAccidentAnalysis:
     """
     Analytics 1: Find the number of crashes (accidents) in which number of males killed are greater than 2?
     """
@@ -35,4 +35,4 @@ class ManAccidentAnalysis:
         :param files: Config files
         :return: Integer -> Total No of crashes
         """
-        return ManAccidentAnalysis.__process(ManAccidentAnalysis, session, files)
+        return MaleAccidentAnalysis.__process(MaleAccidentAnalysis, session, files)
