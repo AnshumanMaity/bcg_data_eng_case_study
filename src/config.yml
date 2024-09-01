@@ -1,0 +1,11 @@
+
+files:
+  inputpath: /Users/ansum/Downloads/bcg_bigdata_case_study-main/bcg_bigdata_case_study-main/src/inputs
+  charges: Charges_use.csv
+  damages: Damages_use.csv
+  endorse: Endorse_use.csv
+  person: Primary_Person_use.csv
+  restrict: Restrict_use.csv
+  units:  Units_use.csv
+
+
