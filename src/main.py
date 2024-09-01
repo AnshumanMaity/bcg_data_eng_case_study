@@ -8,6 +8,8 @@ from analytics.total_crashes_analysis import MaleAccidentAnalysis
 from analytics.two_wheeler_analysis import TwoWheelersCrashAnalysis
 from analytics.crash_vehicle_maker_analysis import TopCrashVehicleMaker
 from analytics.valid_license_hit_and_run_analysis import ValidLicenseHitRunAnalysis
+from analytics.highest_accident_state_analysis import HighestAccidentsState
+from analytics.top_vehicle_crashes_analysis import TopVehicleCrashes
 
 if __name__ == "__main__":
 
@@ -27,9 +29,9 @@ if __name__ == "__main__":
         "analytics_code_1": MaleAccidentAnalysis,
         "analytics_code_2": TwoWheelersCrashAnalysis,
         "analytics_code_3": TopCrashVehicleMaker,
-        "analytics_code_4": ValidLicenseHitRunAnalysis
-        # "analytics_code_5": MalesHighestAccidentsState,
-        # "analytics_code_6": TopBodyStyle,
+        "analytics_code_4": ValidLicenseHitRunAnalysis,
+        "analytics_code_5": HighestAccidentsState,
+        "analytics_code_6": TopVehicleCrashes,
         # "analytics_code_7": TopZipCodes,
         # "analytics_code_8": NoDamagedProperty,
         # "analytics_code_9": SafeCrashes,
