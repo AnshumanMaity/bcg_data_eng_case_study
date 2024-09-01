@@ -7,6 +7,7 @@ from utils.logger import logger
 from analytics.total_crashes_analysis import MaleAccidentAnalysis
 from analytics.two_wheeler_analysis import TwoWheelersCrashAnalysis
 from analytics.crash_vehicle_maker_analysis import TopCrashVehicleMaker
+from analytics.valid_license_hit_and_run_analysis import ValidLicenseHitRunAnalysis
 
 if __name__ == "__main__":
 
@@ -25,8 +26,8 @@ if __name__ == "__main__":
     all_analytics_code = {
         "analytics_code_1": MaleAccidentAnalysis,
         "analytics_code_2": TwoWheelersCrashAnalysis,
-        "analytics_code_3": TopCrashVehicleMaker
-        # "analytics_code_4": ValidLicenseHitRunAnalysis,
+        "analytics_code_3": TopCrashVehicleMaker,
+        "analytics_code_4": ValidLicenseHitRunAnalysis
         # "analytics_code_5": MalesHighestAccidentsState,
         # "analytics_code_6": TopBodyStyle,
         # "analytics_code_7": TopZipCodes,
