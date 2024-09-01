@@ -31,7 +31,6 @@ class Utils:
     @staticmethod
     def save(dataframe, file_format, output_path):
         """
-
         :param dataframe:  DataFrame -> `pyspark.sql.DataFrame`
         :param file_format:  String -> Output file format, eg: Parquet,ORC,CSV
         :param output_path: String -> Output path
