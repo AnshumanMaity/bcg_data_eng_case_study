@@ -4,7 +4,8 @@ import argparse
 from utils.utils import Utils
 from dependencies import files
 from utils.logger import logger
-from analytics.analysis_total_crashes import MaleAccidentAnalysis
+from analytics.total_crashes_analysis import MaleAccidentAnalysis
+from analytics.two_wheeler_analysis import TwoWheelersCrashAnalysis
 
 if __name__ == "__main__":
 
@@ -21,7 +22,16 @@ if __name__ == "__main__":
     logger.info(f'{analytics_code} processing is started')
 
     all_analytics_code = {
-        "analytics_code_1": MaleAccidentAnalysis
+        "analytics_code_1": MaleAccidentAnalysis,
+        "analytics_code_2": TwoWheelersCrashAnalysis
+        # "analytics_code_3": TopCrashVehicleMaker,
+        # "analytics_code_4": ValidLicenseHitRunAnalysis,
+        # "analytics_code_5": MalesHighestAccidentsState,
+        # "analytics_code_6": TopBodyStyle,
+        # "analytics_code_7": TopZipCodes,
+        # "analytics_code_8": NoDamagedProperty,
+        # "analytics_code_9": SafeCrashes,
+        # "analytics_code_10": TopVehicleMakerschargedSpeeding
     }
     try:
         spark = SparkSession \
