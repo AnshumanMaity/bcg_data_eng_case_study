@@ -10,6 +10,10 @@ from analytics.crash_vehicle_maker_analysis import TopCrashVehicleMaker
 from analytics.valid_license_hit_and_run_analysis import ValidLicenseHitRunAnalysis
 from analytics.highest_accident_state_analysis import HighestAccidentsState
 from analytics.top_vehicle_crashes_analysis import TopVehicleCrashes
+from analytics.body_style_analysis import BodyStyleAnalysis
+from analytics.top_zip_codes_analysis import TopZipCodes
+from analytics.safe_crash_analysis import SafeCrashes
+from analytics.top_speeding_vehicles_analysis import TopVehicleMakerschargedSpeeding
 
 if __name__ == "__main__":
 
@@ -32,10 +36,10 @@ if __name__ == "__main__":
         "analytics_code_4": ValidLicenseHitRunAnalysis,
         "analytics_code_5": HighestAccidentsState,
         "analytics_code_6": TopVehicleCrashes,
-        # "analytics_code_7": TopZipCodes,
-        # "analytics_code_8": NoDamagedProperty,
-        # "analytics_code_9": SafeCrashes,
-        # "analytics_code_10": TopVehicleMakerschargedSpeeding
+        "analytics_code_7": BodyStyleAnalysis,
+        "analytics_code_8": TopZipCodes,
+        "analytics_code_9": SafeCrashes,
+        "analytics_code_10": TopVehicleMakerschargedSpeeding
     }
     try:
         spark = SparkSession \
