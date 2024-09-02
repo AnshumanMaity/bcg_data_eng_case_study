@@ -34,7 +34,8 @@ class SafeCrashes:
                             "VEH_DMAG_SCL_2_ID")
 
         unique_crash_id = filtered_data.select("CRASH_ID").distinct().count()
-        return unique_crash_id
+        return session.createDataFrame([("Analysis 9: Count of Distinct Crash IDs where No Damaged Property was observed and Damage Level (VEH_DMAG_SCL~) is above 4 and car avails Insurance ",unique_crash_id)],'a string, b string')
+
 
     @staticmethod
     def execute(session, files):

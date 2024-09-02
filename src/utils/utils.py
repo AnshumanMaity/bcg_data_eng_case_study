@@ -1,4 +1,5 @@
 from .logger import logger
+import json
 
 
 class Utils:
@@ -29,20 +30,8 @@ class Utils:
             logger.error("%s, Error: %s", str(__name__), str(err))
 
     @staticmethod
-    def save(dataframe, file_format, output_path):
-        """
-        :param dataframe:  DataFrame -> `pyspark.sql.DataFrame`
-        :param file_format:  String -> Output file format, eg: Parquet,ORC,CSV
-        :param output_path: String -> Output path
-        :return: None
-        """
-        try:
-            dataframe.write \
-                .format(file_format) \
-                .mode("append") \
-                .option("path", output_path) \
-                .save()
-            logger.debug("Written the file- %s", output_path)
-            return "Success"
-        except Exception as err:
-            logger.error("%s, Error: %s", str(__name__), str(err))
+    def load_config(config_file):
+        """Loads the configuration file and returns it as a dictionary."""
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+        return config

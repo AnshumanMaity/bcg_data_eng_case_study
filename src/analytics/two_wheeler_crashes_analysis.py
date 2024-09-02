@@ -16,15 +16,17 @@ class TwoWheelersCrashAnalysis:
         :return:  Returns a : Int
         """
 
-        # Input files path
+        # Loads input files path into variables
         source_path = files['inputpath']
         units_use_csv_path = source_path + "/" + files["units"]
 
-        # Loads the inputs files data
+        # Loads the primary person data into df
         units_df = Utils.load_csv(session=session, path=units_use_csv_path, header=True,
                                   schema=schemas.units_schema)
+        result=units_df.filter(col("VEH_BODY_STYL_ID") == "MOTORCYCLE").count()
 
-        return units_df.filter(col("VEH_BODY_STYL_ID") == "MOTORCYCLE").count()
+        #Calculates and returns how many two wheelers are booked for crashes.
+        return session.createDataFrame([("Analysis 2: How many two wheelers are booked for crashes?",result)],'a string, b long')
 
     @staticmethod
     def execute(session, files):

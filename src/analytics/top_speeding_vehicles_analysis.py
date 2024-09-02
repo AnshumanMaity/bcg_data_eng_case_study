@@ -70,7 +70,8 @@ class TopVehicleMakerschargedSpeeding:
                    & (col("DRVR_LIC_STATE_ID").isin(top_states))) \
             .select("VEH_MAKE_ID")
 
-        return top_vehicles_made
+        # return top_vehicles_made.groupBy('VEH_MAKE_ID').(count(*).allias('cnt')).orderBy('cnt').limit(5)
+        return top_vehicles_made.groupBy('VEH_MAKE_ID').count().alias('count').orderBy('count', ascending=False).limit(5)
 
     @staticmethod
     def execute(session, files):

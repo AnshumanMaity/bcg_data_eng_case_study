@@ -39,7 +39,7 @@ class TopZipCodes:
             .count()\
             .orderBy(col("count").desc()).take(5)
 
-        return session.createDataFrame(top_zipcode_crashes).show()
+        return session.createDataFrame(top_zipcode_crashes).limit(5)
 
     @staticmethod
     def execute(session, files):

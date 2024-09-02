@@ -1,36 +1,28 @@
 
-from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import SparkSession
 import argparse
 from utils.utils import Utils
-from dependencies import files
 from utils.logger import logger
-from analytics.total_crashes_analysis import MaleAccidentAnalysis
-from analytics.two_wheeler_analysis import TwoWheelersCrashAnalysis
-from analytics.crash_vehicle_maker_analysis import TopCrashVehicleMaker
-from analytics.valid_license_hit_and_run_analysis import ValidLicenseHitRunAnalysis
-from analytics.highest_accident_state_analysis import HighestAccidentsState
-from analytics.top_vehicle_crashes_analysis import TopVehicleCrashes
-from analytics.body_style_analysis import BodyStyleAnalysis
-from analytics.top_zip_codes_analysis import TopZipCodes
-from analytics.safe_crash_analysis import SafeCrashes
-from analytics.top_speeding_vehicles_analysis import TopVehicleMakerschargedSpeeding
+from analytics import MaleCrashesAnalysis,TwoWheelersCrashAnalysis,TopCrashVehicleMaker,ValidLicenseHitRunAnalysis,HighestAccidentsState,TopVehicleCrashes,BodyStyleAnalysis,TopZipCodes,SafeCrashes,TopVehicleMakerschargedSpeeding
 
 if __name__ == "__main__":
 
+    #Parses the config value from the input json file.
     parser = argparse.ArgumentParser(description="BCG Car Crash Case Study")
-    parser.add_argument('--analytics_code', help="analytics code", default="analytics_code_1", )
-    parser.add_argument('--output_file_path', help="output file path", default="/")
-    parser.add_argument('--output_format', help="output file format", default="parquet")
-
+    parser.add_argument("--config", required=True, type=str, default="config.json")
     args = parser.parse_args()
-    analytics_code = args.analytics_code
-    output_path = analytics_code if args.output_file_path == '/' else args.output_file_path
-    output_file_format = args.output_format
+
+    #Loads config value into variable for further use.
+    args_value = Utils.load_config(args.config)
+    analytics_code = args_value["analytics_code"]
+    output_path = args_value["output_path"]
+    input_path = args_value["input"]
 
     logger.info(f'{analytics_code} processing is started')
 
+    #Defines specific classes for 
     all_analytics_code = {
-        "analytics_code_1": MaleAccidentAnalysis,
+        "analytics_code_1": MaleCrashesAnalysis,
         "analytics_code_2": TwoWheelersCrashAnalysis,
         "analytics_code_3": TopCrashVehicleMaker,
         "analytics_code_4": ValidLicenseHitRunAnalysis,
@@ -46,14 +38,12 @@ if __name__ == "__main__":
             .builder \
             .config("spark.app.name", "BCG Car Crash Case Study") \
             .getOrCreate()
+        
+        # Selects the analytics code and starts processing
+        result = all_analytics_code[analytics_code].execute(session=spark, files=input_path)
 
-        # Selects the pipeline and starts processing
-        result = all_analytics_code[analytics_code].execute(session=spark, files=files)
-
-        if isinstance(result, DataFrame):
-            result.show()
-        else:
-            print(f"OUTPUT OF {str(analytics_code).upper()}: {result}")
+        #Saves the result into specific output folders
+        result.repartition(1).write.mode("overwrite").csv(f"{output_path}/{analytics_code}", header=True)
 
     except Exception as err:
         logger.error("%s Error : %s", __name__, str(err))

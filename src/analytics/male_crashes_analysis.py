@@ -3,7 +3,7 @@ from utils.utils import Utils
 from utils import schemas
 
 
-class MaleAccidentAnalysis:
+class MaleCrashesAnalysis:
     """
     Analytics 1: Find the number of crashes (accidents) in which number of males killed are greater than 2?
     """
@@ -25,7 +25,8 @@ class MaleAccidentAnalysis:
         #Calculates the no of accidents where males killed are greater than 2
         total_crashes_males = primary_person_df.where((col("PRSN_GNDR_ID") == 'MALE') & (col("DEATH_CNT") > 2)).count()
 
-        return total_crashes_males
+        #Returns the result in a dataframe
+        return session.createDataFrame([("Analytics 1: Find the number of crashes (accidents) in which number of males killed are greater than 2?",total_crashes_males)],'a string, b long')
 
     @staticmethod
     def execute(session, files):
@@ -35,4 +36,4 @@ class MaleAccidentAnalysis:
         :param files: Config files
         :return: Integer -> Total No of crashes
         """
-        return MaleAccidentAnalysis.__process(MaleAccidentAnalysis, session, files)
+        return MaleCrashesAnalysis.__process(MaleCrashesAnalysis, session, files)

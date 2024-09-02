@@ -16,23 +16,19 @@ class TopCrashVehicleMaker:
         :return:  Returns a : Int
         """
 
-        # Input files path
+        # Loads input files path into variables
         source_path = files['inputpath']
-
         person_use_csv_path = source_path + "/" + files["person"]
-
-        # Loads the primary person data into df
-        primary_person_df = Utils.load_csv(session=session, path=person_use_csv_path, header=True,
-                                   schema=schemas.primary_person_schema)
-        primary_person_df=primary_person_df.filter((primary_person_df.PRSN_TYPE_ID == 'DRIVER') & (primary_person_df.DEATH_CNT >0) & (primary_person_df.PRSN_AIRBAG_ID == 'NOT DEPLOYED'))
-
-        
-
         units_use_csv_path = source_path + "/" + files["units"]
 
         # Loads the inputs files data
+        primary_person_df = Utils.load_csv(session=session, path=person_use_csv_path, header=True,
+                                   schema=schemas.primary_person_schema)
+        
         units_df = Utils.load_csv(session=session, path=units_use_csv_path, header=True,
                                   schema=schemas.units_schema)
+        
+        primary_person_df=primary_person_df.filter((primary_person_df.PRSN_TYPE_ID == 'DRIVER') & (primary_person_df.DEATH_CNT >0) & (primary_person_df.PRSN_AIRBAG_ID == 'NOT DEPLOYED'))
 
         return primary_person_df.join(units_df,["CRASH_ID", "UNIT_NBR"],'inner').groupBy(units_df.VEH_MAKE_ID).agg(count("*").alias("total_crashes")).orderBy(col("total_crashes").desc()).limit(5)
 

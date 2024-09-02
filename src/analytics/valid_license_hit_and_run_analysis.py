@@ -16,12 +16,12 @@ class ValidLicenseHitRunAnalysis:
         :return:  Returns a : Int
         """
 
-        # Input files path
+        # Loads input files path into variables
         source_path = files['inputpath']
 
         person_use_csv_path = source_path + "/" + files["person"]
 
-        # Loads the primary person data into df
+        # Loads the inputs files data
         primary_person_df = Utils.load_csv(session=session, path=person_use_csv_path, header=True,
                                    schema=schemas.primary_person_schema)
         primary_person_df=primary_person_df.where("PRSN_TYPE_ID = 'DRIVER' AND DRVR_LIC_TYPE_ID in ('DRIVER LICENSE','COMMERCIAL DRIVER LIC.')")
@@ -35,7 +35,9 @@ class ValidLicenseHitRunAnalysis:
                                   schema=schemas.units_schema)
         units_df=units_df.filter(units_df.VEH_HNR_FL == 'Y')
 
-        return primary_person_df.join(units_df,["CRASH_ID", "UNIT_NBR"],'inner').count()
+        result=primary_person_df.join(units_df,["CRASH_ID", "UNIT_NBR"],'inner').count()
+
+        return session.createDataFrame([("Analysis 4: Determine number of Vehicles with driver having valid licenses involved in hit and run?",result)],'a string, b long')
 
     @staticmethod
     def execute(session, files):
