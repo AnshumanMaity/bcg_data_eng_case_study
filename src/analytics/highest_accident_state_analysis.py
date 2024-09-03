@@ -12,8 +12,8 @@ class HighestAccidentsState:
         """
         Finds out state has highest number of accidents in which females are not involved?
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
 
         source_path = files['inputpath']
@@ -36,7 +36,7 @@ class HighestAccidentsState:
         """
         Invokes the process methods to get tha analysis report
         :param session: SparkSession -> Spark Session object
-        :param files: Config
-        :return: Integer -> Total No of crashes
+        :param files: config['input']
+        :return: Dataframe -> Total No of crashes
         """
         return HighestAccidentsState.__process(HighestAccidentsState, session, files)

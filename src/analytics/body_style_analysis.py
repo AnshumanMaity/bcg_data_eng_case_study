@@ -13,8 +13,8 @@ class BodyStyleAnalysis:
         """
         Finds out Top ethnic user group of each unique body style involved in crashes
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
         source_path = files['inputpath']
         units_use_csv_path = source_path + "/" + files["units"]
@@ -25,12 +25,14 @@ class BodyStyleAnalysis:
                                   schema=schemas.units_schema)
         person_df = Utils.load_csv(session=session, path=person_use_csv_path, header=True,
                                    schema=schemas.primary_person_schema)
+        
+        #Removing Unwanted types from person and unit dataframes.
+        person_df=person_df.filter("PRSN_ETHNICITY_ID != 'NA' and PRSN_ETHNICITY_ID != 'UNKNOWN' and PRSN_ETHNICITY_ID != 'OTHER'")
+        units_df=units_df.filter("VEH_BODY_STYL_ID != 'NA' and VEH_BODY_STYL_ID != 'UNKNOWN' and VEH_BODY_STYL_ID != 'NOT REPORTED'").filter(~col('VEH_BODY_STYL_ID').like('OTHER%'))
 
         # Inner Joining  Units with Person on crash_id
-        join_condition = units_df.CRASH_ID == person_df.CRASH_ID
-        join_type = "inner"
 
-        joined_res = units_df.join(person_df, join_condition, join_type) \
+        joined_res = units_df.join(person_df, ['CRASH_ID','UNIT_NBR'], how='inner') \
             .select(units_df.CRASH_ID,
                     units_df.VEH_BODY_STYL_ID,
                     person_df.PRSN_ETHNICITY_ID)
@@ -58,7 +60,7 @@ class BodyStyleAnalysis:
         """
         Invokes the process methods to get tha analysis report
         :param session: SparkSession -> Spark Session object
-        :param files: Config
-        :return: Integer -> Total No of crashes
+        :param files: config['input']
+        :return: Dataframe
         """
         return BodyStyleAnalysis.__process(BodyStyleAnalysis, session, files)

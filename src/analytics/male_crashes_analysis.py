@@ -11,8 +11,8 @@ class MaleCrashesAnalysis:
     def __process(self, session, files):
         """
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
         # Loads input files path into variables
         source_path = files['inputpath']
@@ -31,9 +31,9 @@ class MaleCrashesAnalysis:
     @staticmethod
     def execute(session, files):
         """
-        Invokes the process methods to get tha analysis report
+        Invokes the process methods to get the analysis report
         :param session: Spark Session object
         :param files: Config files
-        :return: Integer -> Total No of crashes
+        :return: Dataframe -> Total No of crashes
         """
         return MaleCrashesAnalysis.__process(MaleCrashesAnalysis, session, files)

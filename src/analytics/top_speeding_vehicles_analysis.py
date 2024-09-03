@@ -1,4 +1,5 @@
-from pyspark.sql.functions import col,regexp_extract
+from pyspark.sql.functions import col,row_number
+from pyspark.sql import Window
 from utils.utils import Utils
 from utils import schemas
 
@@ -12,8 +13,8 @@ class TopVehicleMakerschargedSpeeding:
         """
         Finds out Top 5 Vehicle Makes where drivers are charged with speeding related offences
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
         source_path = files['inputpath']
         charges_use_csv_path = source_path + "/" + files["charges"]
@@ -30,55 +31,25 @@ class TopVehicleMakerschargedSpeeding:
         units_df = Utils.load_csv(session=session, path=units_use_csv_path, header=True,
                                   schema=schemas.units_schema)
 
-        # Joining on charges data with person data on crash_id
-        join_condition = charges_df.CRASH_ID == person_df.CRASH_ID
-        join_type = "inner"
-
-        # charges with speed related offences with driver licences
-        speeding_with_licences = charges_df.join(person_df, join_condition, join_type)\
-            .where((col("CHARGE").like("%SPEED%")) &
-                   (col("DRVR_LIC_TYPE_ID") == "DRIVER LICENSE")) \
-            .select(charges_df.CRASH_ID,
-                    charges_df.CHARGE,
-                    charges_df.UNIT_NBR,
-                    person_df.DRVR_LIC_TYPE_ID,
-                    person_df.DRVR_LIC_STATE_ID,
-                    person_df.DRVR_LIC_CLS_ID
-                    )
-
-        # Top states with highest number of offences
-        top_states_offences = person_df\
-            .groupBy("DRVR_LIC_STATE_ID")\
-            .count()\
-            .orderBy(col("count").desc()).take(25)
-
-        # Top used vehicles colours with licenced
-        top_licensed_vehicle_colors = units_df.\
-            join(person_df, units_df.CRASH_ID == person_df.CRASH_ID, "inner") \
-            .where((col("DRVR_LIC_TYPE_ID") == "DRIVER LICENSE")
-                   & (col("DRVR_LIC_CLS_ID").like("CLASS C%"))) \
-            .groupBy("VEH_COLOR_ID")\
-            .count()\
-            .orderBy(col("count").desc()).take(10)
-
-        top_colors = [i["VEH_COLOR_ID"] for i in top_licensed_vehicle_colors]
-        top_states = [i['DRVR_LIC_STATE_ID'] for i in top_states_offences]
-
-        top_vehicles_made = speeding_with_licences\
-            .join(units_df, speeding_with_licences.CRASH_ID == units_df.CRASH_ID, "inner") \
-            .where((col("VEH_COLOR_ID").isin(top_colors))
-                   & (col("DRVR_LIC_STATE_ID").isin(top_states))) \
-            .select("VEH_MAKE_ID")
-
-        # return top_vehicles_made.groupBy('VEH_MAKE_ID').(count(*).allias('cnt')).orderBy('cnt').limit(5)
-        return top_vehicles_made.groupBy('VEH_MAKE_ID').count().alias('count').orderBy('count', ascending=False).limit(5)
+        charge_speed_df = charges_df.filter(col('CHARGE').contains('SPEED')).select('CRASH_ID','UNIT_NBR','CHARGE') #charge corresponding to speed issues
+        top_clrs_agg_df = units_df.filter("VEH_COLOR_ID != 'NA'").select('VEH_COLOR_ID').groupBy('VEH_COLOR_ID').count()
+        top_clrs_df = top_clrs_agg_df.withColumn('rn',row_number().over(Window.orderBy(col('count').desc()))).filter("rn <=10").select('VEH_COLOR_ID')#top10 vehicle colors used
+        top_states_agg = units_df.filter(~col('VEH_LIC_STATE_ID').isin('NA','Unknown','Other','UN')).select('VEH_LIC_STATE_ID').groupBy('VEH_LIC_STATE_ID').count()
+        top_states_df = top_states_agg.withColumn('rn',row_number().over(Window.orderBy(col('count').desc()))).filter("rn <=25").select('VEH_LIC_STATE_ID')
+        unit_sub_join = units_df.join(top_clrs_df,on=['VEH_COLOR_ID'],how='inner').select('CRASH_ID','UNIT_NBR','VEH_MAKE_ID','VEH_LIC_STATE_ID')
+        charge_sub_join = unit_sub_join.join(charge_speed_df,on=['CRASH_ID','UNIT_NBR'],how='inner').select('CRASH_ID','UNIT_NBR','VEH_MAKE_ID','VEH_LIC_STATE_ID')
+        combine_join = charge_sub_join.join(top_states_df,on=['VEH_LIC_STATE_ID'],how='inner').select('CRASH_ID','UNIT_NBR','VEH_MAKE_ID')
+        licensed_person_df = person_df.filter("DRVR_LIC_CLS_ID != 'UNLICENSED'").select('CRASH_ID','UNIT_NBR')
+        final_temp_df = combine_join.join(licensed_person_df,on=['CRASH_ID','UNIT_NBR'],how='inner').select('CRASH_ID','VEH_MAKE_ID').groupBy('VEH_MAKE_ID').count()
+        result_df=final_temp_df.withColumn('rn',row_number().over(Window.orderBy(col('count').desc()))).filter("rn <= 5").select('VEH_MAKE_ID')
+        return result_df
 
     @staticmethod
     def execute(session, files):
         """
         Invokes the process methods to get tha analysis report
         :param session: SparkSession -> Spark Session object
-        :param files: Config
-        :return: Integer -> Total No of crashes
+        :param files: config['input']
+        :return: Dataframe
         """
         return TopVehicleMakerschargedSpeeding.__process(TopVehicleMakerschargedSpeeding, session, files)

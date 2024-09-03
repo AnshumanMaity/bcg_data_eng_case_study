@@ -12,8 +12,8 @@ class TopZipCodes:
         """
         Finds out the Top 5 Zip Codes with highest number crashes with alcohols as the contributing factor
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
         source_path = files['inputpath']
         person_use_csv_path = source_path + "/" + files["person"]
@@ -28,12 +28,9 @@ class TopZipCodes:
         # Dropping all the null values in Driver zip columns
         valid_person_df = person_df.na.drop(subset=["DRVR_ZIP"])
 
-        join_condition = units_df.CRASH_ID == person_df.CRASH_ID
-        join_type = "inner"
-
-        top_zipcode_crashes = units_df.join(valid_person_df, join_condition, join_type) \
+        top_zipcode_crashes = units_df.join(valid_person_df, ['CRASH_ID','UNIT_NBR'], how='inner') \
             .where(
-            "VEH_BODY_STYL_ID in ('PASSENGER CAR, 4-DOOR', 'SPORT UTILITY VEHICLE', 'PASSENGER CAR, 2-DOOR') and  "
+            "VEH_BODY_STYL_ID in ('PASSENGER CAR, 4-DOOR', 'PASSENGER CAR, 2-DOOR') and  "
             "PRSN_ALC_RSLT_ID = 'Positive' "
         ).groupBy("DRVR_ZIP")\
             .count()\
@@ -46,7 +43,7 @@ class TopZipCodes:
         """
         Invokes the process methods to get tha analysis report
         :param session: SparkSession -> Spark Session object
-        :param files: Config
-        :return: Integer -> Total No of crashes
+        :param files: config['input']
+        :return: Dataframe
         """
         return TopZipCodes.__process(TopZipCodes, session, files)

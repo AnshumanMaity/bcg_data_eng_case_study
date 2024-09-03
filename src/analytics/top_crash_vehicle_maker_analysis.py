@@ -12,8 +12,8 @@ class TopCrashVehicleMaker:
         """
         Finds out Top 5 Vehicle Makes of the cars present in the crashes in which driver died and Airbags did not deploy.
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
 
         # Loads input files path into variables
@@ -27,10 +27,13 @@ class TopCrashVehicleMaker:
         
         units_df = Utils.load_csv(session=session, path=units_use_csv_path, header=True,
                                   schema=schemas.units_schema)
+        units_df=units_df.filter((units_df.VEH_BODY_STYL_ID == 'PASSENGER CAR, 4-DOOR') | (units_df.VEH_BODY_STYL_ID == 'PASSENGER CAR, 2-DOOR'))
         
-        primary_person_df=primary_person_df.filter((primary_person_df.PRSN_TYPE_ID == 'DRIVER') & (primary_person_df.DEATH_CNT >0) & (primary_person_df.PRSN_AIRBAG_ID == 'NOT DEPLOYED'))
+        primary_person_df=primary_person_df.filter((primary_person_df.PRSN_TYPE_ID == 'DRIVER') 
+                                                   & (primary_person_df.DEATH_CNT >0) 
+                                                   & (primary_person_df.PRSN_AIRBAG_ID == 'NOT DEPLOYED'))
 
-        return primary_person_df.join(units_df,["CRASH_ID", "UNIT_NBR"],'inner').groupBy(units_df.VEH_MAKE_ID).agg(count("*").alias("total_crashes")).orderBy(col("total_crashes").desc()).limit(5)
+        return units_df.join(primary_person_df,["CRASH_ID", "UNIT_NBR"],'inner').groupBy(units_df.VEH_MAKE_ID).agg(count("*").alias("total_crashes")).orderBy(col("total_crashes").desc()).limit(5)
 
     @staticmethod
     def execute(session, files):
@@ -38,6 +41,6 @@ class TopCrashVehicleMaker:
         Invokes the process methods to get tha analysis report
         :param session: SparkSession -> Spark Session object
         :param files: Config
-        :return: Integer -> Total No of crashes
+        :return: Dataframe -> Total No of crashes
         """
         return TopCrashVehicleMaker.__process(TopCrashVehicleMaker, session, files)

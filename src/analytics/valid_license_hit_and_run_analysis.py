@@ -12,8 +12,8 @@ class ValidLicenseHitRunAnalysis:
         """
         Finds out number of Vehicles with driver having valid licenses involved in hit and run? .
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
 
         # Loads input files path into variables
@@ -44,7 +44,7 @@ class ValidLicenseHitRunAnalysis:
         """
         Invokes the process methods to get tha analysis report
         :param session: SparkSession -> Spark Session object
-        :param files: Config
-        :return: Integer -> Total No of crashes
+        :param files: config['input']
+        :return: Dataframe -> Total No of crashes
         """
         return ValidLicenseHitRunAnalysis.__process(ValidLicenseHitRunAnalysis, session, files)

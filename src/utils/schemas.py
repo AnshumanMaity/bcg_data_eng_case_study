@@ -79,3 +79,7 @@ charges_schema = StructType() \
     .add("PRSN_NBR", StringType()) \
     .add("CHARGE", StringType()) \
     .add("CITATION_NBR", StringType())
+
+damages_schema = StructType() \
+    .add("CRASH_ID", IntegerType(),nullable=True) \
+    .add("DAMAGED_PROPERTY", StringType(),nullable=True)

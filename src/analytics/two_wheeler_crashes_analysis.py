@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col
+from pyspark.sql.functions import col,upper
 from utils.utils import Utils
 from utils import schemas
 
@@ -12,8 +12,8 @@ class TwoWheelersCrashAnalysis:
         """
         Analyzes how many two wheelers are booked for crashes.
         :param session: SparkSession
-        :param files: Yaml config['files']
-        :return:  Returns a : Int
+        :param files: Dictionary Object config['input']
+        :return:  Returns a : Dataframe
         """
 
         # Loads input files path into variables
@@ -23,7 +23,7 @@ class TwoWheelersCrashAnalysis:
         # Loads the primary person data into df
         units_df = Utils.load_csv(session=session, path=units_use_csv_path, header=True,
                                   schema=schemas.units_schema)
-        result=units_df.filter(col("VEH_BODY_STYL_ID") == "MOTORCYCLE").count()
+        result=units_df.filter(upper(col('VEH_BODY_STYL_ID')).like('%MOTORCYCLE%')).count()
 
         #Calculates and returns how many two wheelers are booked for crashes.
         return session.createDataFrame([("Analysis 2: How many two wheelers are booked for crashes?",result)],'a string, b long')
@@ -31,9 +31,9 @@ class TwoWheelersCrashAnalysis:
     @staticmethod
     def execute(session, files):
         """
-        Invokes the process methods to get tha analysis report
+        Invokes the process methods to get the analysis report
         :param session: SparkSession -> Spark Session object
         :param files: Config
-        :return: Integer -> Total No of crashes
+        :return: Dataframe -> Total No of crashes
         """
         return TwoWheelersCrashAnalysis.__process(TwoWheelersCrashAnalysis, session, files)
